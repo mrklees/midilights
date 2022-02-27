@@ -6,9 +6,13 @@ from serial_wrapper import SerialWrapper, get_available_ports
 
 def display_input_ports():
     inports = mido.get_input_names()
+    guess = None
     print("Please select the midi port to read from:")
     for ix, inport in enumerate(inports):
         print(f"{ix}: {inport}")
+        if "loopMIDI" in inport:
+            guess = ix
+    return guess
 
 def bridge_midi_to_serial(in_port, device="COM3"):
     srl = SerialWrapper(device)
@@ -23,8 +27,11 @@ def bridge_midi_to_serial(in_port, device="COM3"):
             
 
 if __name__ == "__main__":
-    display_input_ports()
-    inport_ix = int(input())
+    guess = display_input_ports()
+    if guess:
+        inport_ix = guess
+    else:
+        inport_ix = int(input("port:"))
     inport = mido.get_input_names()[inport_ix]
     available_ports = get_available_ports()
     first_port = list(available_ports.keys())[0]
