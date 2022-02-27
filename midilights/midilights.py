@@ -2,7 +2,7 @@ import sys
 
 import mido
 
-from serial_wrapper import SerialWrapper
+from serial_wrapper import SerialWrapper, get_available_ports
 
 def display_input_ports():
     inports = mido.get_input_names()
@@ -10,13 +10,13 @@ def display_input_ports():
     for ix, inport in enumerate(inports):
         print(f"{ix}: {inport}")
 
-def bridge_midi_to_serial(in_port, device):
+def bridge_midi_to_serial(in_port, device="COM3"):
     srl = SerialWrapper(device)
     with mido.open_input(in_port) as inport:
         for msg in inport:
             control, value = msg.control, msg.value
             if value == 127:
-                data = f"m{control}{value}"
+                data = f"m{chr(control)}{chr(value)}"
                 srl.send_data(data)
 
 
@@ -26,4 +26,7 @@ if __name__ == "__main__":
     display_input_ports()
     inport_ix = int(input())
     inport = mido.get_input_names()[inport_ix]
-    bridge_midi_to_serial(inport, "")
+    available_ports = get_available_ports()
+    first_port = list(available_ports.keys())[0]
+    print(f"Sending Midi to {first_port}")
+    bridge_midi_to_serial(inport, device=first_port)
