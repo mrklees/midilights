@@ -2,7 +2,7 @@ import sys
 import time
 import mido
 
-from serial_wrapper import SerialWrapper, get_available_ports
+from midilights.serial_wrapper import SerialWrapper, get_available_ports
 from serial.serialutil import SerialException
 
 def display_input_ports():
@@ -12,6 +12,7 @@ def display_input_ports():
     for ix, inport in enumerate(inports):
         print(f"{ix}: {inport}")
         if "loopMIDI" in inport:
+            print("guessed!")
             guess = ix
     return guess
 
@@ -23,6 +24,15 @@ def bridge_midi_to_serial(in_port, device="COM3"):
             if value == 127:
                 data = f"m{chr(control)}{chr(value)}"
                 srl.send_data(data)
+
+def test_bridge(inport_ix=1):
+    inport = mido.get_input_names()[inport_ix]
+
+    with mido.open_input(inport) as inport:
+        for ix, msg in enumerate(inport):
+            print(msg)
+            if ix == 10: 
+                break
 
 
 def run_bridge():
