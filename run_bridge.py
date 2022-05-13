@@ -1,5 +1,6 @@
 from time import time
 from midilights.midilights import run_bridge
+from serial.serialutil import SerialException
 
 if __name__ == "__main__":
     while True:
