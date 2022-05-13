@@ -1,5 +1,6 @@
 import os
 import sys
+import threading
 import time
 import mido
 
@@ -12,7 +13,7 @@ def user_input():
     global user_commands
     while True:
         try:
-            command = input()
+            command = input("command:")
             values = tuple(map(int, command.split(" ")))
             if len(command) == 2:
                 user_commands.append(values)
@@ -47,10 +48,11 @@ def bridge_midi_to_serial(in_port, device="COM3"):
                 data = f"m{chr(control)}{chr(value)}"
                 print(control, value)
                 srl.send_data(data)
-                time.sleep(0.01)
 
 
 def run_bridge():
+    user_thread = threading.Thread(target=user_input)
+
     guess = display_input_ports()
     if guess:
         inport_ix = guess
@@ -69,8 +71,10 @@ def run_bridge():
 
     first_port = list(available_ports.keys())[0]
     print(f"Sending Midi from {inport_ix} to {first_port}")
-    bridge_midi_to_serial(inport, device=first_port)
 
+    # Start thread waiting for user input
+    user_thread.start()
+    bridge_midi_to_serial(inport, device=first_port)
 
 if __name__ == "__main__":
     print(os.listdir("."))
