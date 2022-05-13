@@ -6,6 +6,21 @@ import mido
 from midilights.serial_wrapper import SerialWrapper, get_available_ports
 from serial.serialutil import SerialException
 
+user_commands = []
+
+def user_input():
+    global user_commands
+    while True:
+        try:
+            command = input()
+            values = tuple(map(int, command.split(" ")))
+            if len(command) == 2:
+                user_commands.append(values)
+        except KeyboardInterupt:
+            break
+        except:
+            continue
+
 def display_input_ports():
     inports = mido.get_input_names()
     guess = None
@@ -18,15 +33,21 @@ def display_input_ports():
     return guess
 
 def bridge_midi_to_serial(in_port, device="COM3"):
+    global user_commands
     srl = SerialWrapper(device)
     with mido.open_input(in_port) as inport:
         for msg in inport:
+            while user_commands:
+                c, v = user_commands.pop(0)
+                data = f"m{chr(c)}{chr(v)}"
+                srl.send_data(data)
+
             control, value = msg.control, msg.value
             if value > 0:
                 data = f"m{chr(control)}{chr(value)}"
                 print(control, value)
                 srl.send_data(data)
-                time.sleep(0.1)
+                time.sleep(0.01)
 
 
 def run_bridge():

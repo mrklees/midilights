@@ -16,5 +16,7 @@ def simulated_drum_loop(device, repeats=10, wait_time=0.5):
 
 if __name__ == "__main__":
     available_ports = get_available_ports()
-    first_port = list(available_ports.keys())[0]
+    print(f"Devices: {available_ports}")
+    first_port = list(available_ports.keys())[1]
+    print(f"Using device: {first_port}")
     simulated_drum_loop(first_port)
