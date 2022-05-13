@@ -1,5 +1,5 @@
 from time import sleep
-from serial_wrapper import SerialWrapper, get_available_ports
+from midilights.serial_wrapper import SerialWrapper, get_available_ports
 
 def simulated_drum_loop(device, repeats=10, wait_time=0.5):
     serial = SerialWrapper(device)

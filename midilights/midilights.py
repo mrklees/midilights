@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import mido
@@ -21,18 +22,10 @@ def bridge_midi_to_serial(in_port, device="COM3"):
     with mido.open_input(in_port) as inport:
         for msg in inport:
             control, value = msg.control, msg.value
-            if value == 127:
+            if value > 0:
                 data = f"m{chr(control)}{chr(value)}"
+                print(control, value)
                 srl.send_data(data)
-
-def test_bridge(inport_ix=1):
-    inport = mido.get_input_names()[inport_ix]
-
-    with mido.open_input(inport) as inport:
-        for ix, msg in enumerate(inport):
-            print(msg)
-            if ix == 10: 
-                break
 
 
 def run_bridge():
@@ -58,6 +51,7 @@ def run_bridge():
 
 
 if __name__ == "__main__":
+    print(os.listdir("."))
     while True:
         try:
             run_bridge()

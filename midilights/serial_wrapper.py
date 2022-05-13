@@ -14,5 +14,5 @@ class SerialWrapper:
     def send_data(self, data):
         data += "\n"
         bytes_data = data.encode()
-        print(bytes_data)
+        #   print(bytes_data)
         self.ser.write(bytes_data)
