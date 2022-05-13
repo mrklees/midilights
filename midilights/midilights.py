@@ -26,6 +26,7 @@ def bridge_midi_to_serial(in_port, device="COM3"):
                 data = f"m{chr(control)}{chr(value)}"
                 print(control, value)
                 srl.send_data(data)
+                time.sleep(0.1)
 
 
 def run_bridge():
