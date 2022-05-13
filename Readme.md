@@ -7,7 +7,11 @@ We send midi events to certain channels which are interpreted by the lights in v
 
 | Midi Channel | Value Range | Expected Usage |
 | ------------ | ----------- | -------------- |
-| 0-3          | 127         | Principally drums.  Gate signals are used to trigger lights |
-| 5            | 1-127       | Brightness |
-| 6            | 1-127       | Set Color |
-| 7            | 1-127       | Set patterns |
+| 0            | 127         | Kick |
+| 1            | 127         | Snare |
+| 2            | 127         | Clap |
+| 3            | 127         | Closed Hat |
+| 4            | 127         | Open Hat |
+| 5            | 1-127       | Set patterns |
+| 6            | 1-127       | Brightness |
+| 7            | 1-127       | Set Color |
