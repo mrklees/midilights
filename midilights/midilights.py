@@ -15,10 +15,12 @@ def user_input():
         try:
             command = input("command:")
             values = tuple(map(int, command.split(" ")))
-            if len(command) == 2:
+            if len(values) == 2:
+                print("\tadded command:", values)
                 user_commands.append(values)
-        except KeyboardInterupt:
-            break
+        except KeyboardInterrupt:
+            print("Exiting")
+            exit(0)
         except:
             continue
 
@@ -35,19 +37,34 @@ def display_input_ports():
 
 def bridge_midi_to_serial(in_port, device="COM3"):
     global user_commands
+    last = [time.time()]
+    skipped = 0
     srl = SerialWrapper(device)
     with mido.open_input(in_port) as inport:
         for msg in inport:
             while user_commands:
                 c, v = user_commands.pop(0)
+                print(f"\tSending user command {c} {v}")
                 data = f"m{chr(c)}{chr(v)}"
                 srl.send_data(data)
 
             control, value = msg.control, msg.value
             if value > 0:
                 data = f"m{chr(control)}{chr(value)}"
-                print(control, value)
-                srl.send_data(data)
+                delta = time.time() - last[0]
+                if delta < 0.1:
+                    print(f"Skipping {delta:.2f}")
+                    skipped += 1
+                else:
+                    if skipped:
+                        print(control, value, "\tskipped:", skipped)
+                        skipped = 0
+                    else:
+                        print(control, value)
+                    srl.send_data(data)
+                    last.append(time.time())
+                    if len(last) > 10:
+                        last.pop(0)
 
 
 def run_bridge():
