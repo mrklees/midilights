@@ -10,14 +10,14 @@ def benchmark(serial, iterations=100):
         serial.send_data(kick)
 
     while True:
-        queued = serial.ser.out_waiting
+        queued = serial.out_waiting
         print(f"Waiting on {queued} ({time() - T0:.2f})")
         if queued == 0:
             break
         sleep(0.01)
 
     # Should happen instantly
-    serial.ser.flush()
+    serial.flush()
 
     T1 = time()
     num_bytes = serial.bytes_sent()
@@ -32,7 +32,6 @@ if __name__ == "__main__":
     print(f"Devices: {available_ports}")
     first_port = list(available_ports.keys())[1]
     print(f"Using device: {first_port}")
-    serial = SerialWrapper(first_port)
 
-    benchmark(serial, iterations=10000)
-    serial.ser.close()
+    with SerialWrapper(first_port) as serial:
+        benchmark(serial, iterations=10000)

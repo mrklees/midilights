@@ -7,9 +7,9 @@ def get_available_ports():
     ports_dir = {port: (desc, hwid) for port, desc, hwid in sorted(ports)}
     return ports_dir
 
-class SerialWrapper:
-    def __init__(self, device="COM3"):
-        self.ser = serial.Serial(device, 115200)
+class SerialWrapper(serial.Serial):
+    def __init__(self, device="COM3", baudrate=115200):
+        super(SerialWrapper, self).__init__(port=device, baudrate=baudrate)
         self.num_bytes = 0
 
     def bytes_sent(self):
@@ -17,5 +17,5 @@ class SerialWrapper:
 
     def send_data(self, data):
         bytes_data = (data + "\n").encode()
-        self.ser.write(bytes_data)
         self.num_bytes += len(bytes_data)
+        self.write(bytes_data)
