@@ -10,9 +10,12 @@ def get_available_ports():
 class SerialWrapper:
     def __init__(self, device="COM3"):
         self.ser = serial.Serial(device, 115200)
+        self.num_bytes = 0
+
+    def bytes_sent(self):
+        return self.num_bytes
 
     def send_data(self, data):
-        data += "\n"
-        bytes_data = data.encode()
-        #   print(bytes_data)
+        bytes_data = (data + "\n").encode()
         self.ser.write(bytes_data)
+        self.num_bytes += len(bytes_data)

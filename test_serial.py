@@ -6,6 +6,8 @@ def simulated_drum_loop(device, repeats=10, wait_time=0.5):
     kick =  f'm{chr(0)}{chr(127)}'
     snare = f'm{chr(1)}{chr(127)}'
     chat = f'm{chr(2)}{chr(127)}'
+
+    serial.send_data("m{chr(5)}{chr(2)}")
     for rep in range(repeats):
         serial.send_data(kick)
         sleep(wait_time)
