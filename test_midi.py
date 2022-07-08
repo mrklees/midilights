@@ -7,7 +7,7 @@ def test_bridge(inport_ix=1):
     with mido.open_input(inport) as inport:
         for ix, msg in enumerate(inport):
             print(msg)
-            if ix == 100: 
+            if ix == 100:
                 break
 
 if __name__ == "__main__":
