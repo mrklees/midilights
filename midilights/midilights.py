@@ -19,7 +19,7 @@ def user_input():
                 print("\tadded command:", values)
                 user_commands.append(values)
         except KeyboardInterrupt:
-            print("Exiting")
+            print("Caught ^C Exiting")
             exit(0)
         except:
             continue
@@ -39,8 +39,7 @@ def bridge_midi_to_serial(in_port, device="COM3"):
     global user_commands
     last = [time.time()]
     skipped = 0
-    srl = SerialWrapper(device)
-    with mido.open_input(in_port) as inport:
+    with SerialWrapper(device) as srl, mido.open_input(in_port) as inport:
         for msg in inport:
             while user_commands:
                 c, v = user_commands.pop(0)
@@ -54,16 +53,16 @@ def bridge_midi_to_serial(in_port, device="COM3"):
                 print("Caught a midi val with no cc")
             if value > 0:
                 data = f"m{chr(control)}{chr(value)}"
-                delta = time.time() - last[0]
-                if delta < 0.3:
-                #    print(f"Skipping {delta:.2f}")
+                if ser.out_waiting > 100:
+                    delta = time.time() - last[0]
                     skipped += 1
+                    print(f"Skip #{skipped:<3} | {control:3} {value:3} | last 10 in {delta:.3f} seconds")
                 else:
                     if skipped:
-                        print(control, value, "\tskipped:", skipped)
+                        print("previously skipped:", skipped)
                         skipped = 0
-                    else:
-                        print(control, value)
+
+                    print(control, value)
                     srl.send_data(data)
                     last.append(time.time())
                     if len(last) > 10:
@@ -71,7 +70,6 @@ def bridge_midi_to_serial(in_port, device="COM3"):
 
 
 def run_bridge():
-    user_thread = threading.Thread(target=user_input)
 
     guess = display_input_ports()
     if guess:
@@ -92,11 +90,13 @@ def run_bridge():
     first_port = list(available_ports.keys())[0]
     print(f"Sending Midi from {inport_ix} to {first_port}")
 
-    # Start thread waiting for user input
-    user_thread.start()
     bridge_midi_to_serial(inport, device=first_port)
 
 if __name__ == "__main__":
+    # Start thread waiting for user input
+    user_thread = threading.Thread(target=user_input)
+    user_thread.start()
+
     print(os.listdir("."))
     while True:
         try:
@@ -104,3 +104,6 @@ if __name__ == "__main__":
         except SerialException:
             print("Caught SerialException will restart in 2 second")
             time.sleep(2)
+        except KeyboardInterrupt:
+            print("Caught ^C Exiting")
+            exit(0)
