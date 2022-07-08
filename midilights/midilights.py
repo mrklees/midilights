@@ -47,13 +47,16 @@ def bridge_midi_to_serial(in_port, device="COM3"):
                 print(f"\tSending user command {c} {v}")
                 data = f"m{chr(c)}{chr(v)}"
                 srl.send_data(data)
-
-            control, value = msg.control, msg.value
+            
+            try:
+                control, value = msg.control, msg.value
+            except AttributeError:
+                print("Caught a midi val with no cc")
             if value > 0:
                 data = f"m{chr(control)}{chr(value)}"
                 delta = time.time() - last[0]
-                if delta < 0.1:
-                    print(f"Skipping {delta:.2f}")
+                if delta < 0.3:
+                #    print(f"Skipping {delta:.2f}")
                     skipped += 1
                 else:
                     if skipped:

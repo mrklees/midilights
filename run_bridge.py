@@ -1,4 +1,4 @@
-from time import time
+import time
 from midilights.midilights import run_bridge
 from serial.serialutil import SerialException
 
