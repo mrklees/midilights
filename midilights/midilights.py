@@ -1,8 +1,11 @@
+import datetime
+import mido
 import os
 import sys
 import threading
 import time
-import mido
+
+from collections import defaultdict
 
 from midilights.serial_wrapper import SerialWrapper, get_available_ports
 from serial.serialutil import SerialException
@@ -37,8 +40,18 @@ def display_input_ports():
 
 def bridge_midi_to_serial(in_port, device="COM3"):
     global user_commands
+
+    # To print every once in a while
+    events = 0
+    last_print_time = time.time()
+    last_print_count = 0
+    updates = defaultdict(int)
+    last_values = defaultdict(int)
+
     last = [time.time()]
     skipped = 0
+
+
     with SerialWrapper(device) as srl, mido.open_input(in_port) as inport:
         for msg in inport:
             while user_commands:
@@ -46,24 +59,38 @@ def bridge_midi_to_serial(in_port, device="COM3"):
                 print(f"\tSending user command {c} {v}")
                 data = f"m{chr(c)}{chr(v)}"
                 srl.send_data(data)
-            
+
             try:
                 control, value = msg.control, msg.value
             except AttributeError:
                 print("Caught a midi val with no cc")
             if value > 0:
                 data = f"m{chr(control)}{chr(value)}"
+                events += 1
+                updates[control] += 1
+                last_values[control] = value
+
                 if srl.out_waiting > 20:
                     delta = time.time() - last[0]
                     skipped += 1
-                    print(f"Skip #{skipped:<3} | {control:3} {value:3} | last 10 in {delta:.3f} seconds")
+                    updates["Skip"] += 1
+                    print(f"Skip #{skipped:<3} | {control:3} {value:3} | last {len(last)} updates in {delta:.3f} seconds")
                 else:
                     if skipped:
                         print("previously skipped:", skipped)
                         skipped = 0
 
-                    print(control, value)
+                    if events % 100 == 0 or (last_print_count > events and (time.time() - last_print_time) > 1):
+                        now = datetime.datetime.now().replace(microsecond=0).isoformat()
+                        # Sorted
+                        last_values = [v for k, v in sorted(last_values.items())]
+                        print(f"{now} {events} events - {skipped} skipped | Sending {control} {value} | last values: {last_values} updates: {dict(sorted(updates.items()))}")
+
+                        last_print_time = time.time()
+                        last_print_count = events
+
                     srl.send_data(data)
+
                     last.append(time.time())
                     if len(last) > 10:
                         last.pop(0)
