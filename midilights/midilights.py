@@ -53,7 +53,7 @@ def bridge_midi_to_serial(in_port, device="COM3"):
                 print("Caught a midi val with no cc")
             if value > 0:
                 data = f"m{chr(control)}{chr(value)}"
-                if ser.out_waiting > 100:
+                if srl.out_waiting > 20:
                     delta = time.time() - last[0]
                     skipped += 1
                     print(f"Skip #{skipped:<3} | {control:3} {value:3} | last 10 in {delta:.3f} seconds")
