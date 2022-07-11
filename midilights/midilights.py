@@ -99,10 +99,6 @@ def bridge_midi_to_serial(in_port, device="COM3"):
 
 
 def run_bridge():
-    # Start thread waiting for user input
-    user_thread = threading.Thread(target=user_input)
-    user_thread.start()
-
     guess = display_input_ports()
     if guess:
         inport_ix = guess
@@ -122,6 +118,9 @@ def run_bridge():
     first_port = list(available_ports.keys())[0]
     print(f"Sending Midi from {inport_ix} to {first_port}")
 
+    # Start thread waiting for user input
+    user_thread = threading.Thread(target=user_input)
+    user_thread.start()
     bridge_midi_to_serial(inport, device=first_port)
 
 if __name__ == "__main__":
