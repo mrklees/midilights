@@ -13,6 +13,7 @@ from serial.serialutil import SerialException
 user_commands = []
 
 def user_input():
+    print("Starting User Input processor")
     global user_commands
     while True:
         try:
@@ -25,6 +26,7 @@ def user_input():
             print("Caught ^C Exiting")
             exit(0)
         except:
+            print("Caught error")
             continue
 
 def display_input_ports():
@@ -97,6 +99,9 @@ def bridge_midi_to_serial(in_port, device="COM3"):
 
 
 def run_bridge():
+    # Start thread waiting for user input
+    user_thread = threading.Thread(target=user_input)
+    user_thread.start()
 
     guess = display_input_ports()
     if guess:
@@ -120,10 +125,6 @@ def run_bridge():
     bridge_midi_to_serial(inport, device=first_port)
 
 if __name__ == "__main__":
-    # Start thread waiting for user input
-    user_thread = threading.Thread(target=user_input)
-    user_thread.start()
-
     print(os.listdir("."))
     while True:
         try:
