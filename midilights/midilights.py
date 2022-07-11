@@ -73,7 +73,7 @@ def bridge_midi_to_serial(in_port, device="COM3"):
                 if srl.out_waiting > 20:
                     delta = time.time() - last[0]
                     skipped += 1
-                    updates["Skip"] += 1
+                    updates[1000] += 1
                     print(f"Skip #{skipped:<3} | {control:3} {value:3} | last {len(last)} updates in {delta:.3f} seconds")
                 else:
                     if skipped:
@@ -83,8 +83,8 @@ def bridge_midi_to_serial(in_port, device="COM3"):
                     if events % 100 == 0 or (last_print_count > events and (time.time() - last_print_time) > 1):
                         now = datetime.datetime.now().replace(microsecond=0).isoformat()
                         # Sorted
-                        last_values = [v for k, v in sorted(last_values.items())]
-                        print(f"{now} {events} events - {skipped} skipped | Sending {control} {value} | last values: {last_values} updates: {dict(sorted(updates.items()))}")
+                        print_values = [v for k, v in sorted(last_values.items())]
+                        print(f"{now} {events} events - {skipped} skipped | Sending {control} {value} | last values: {print_values} updates: {dict(sorted(updates.items()))}")
 
                         last_print_time = time.time()
                         last_print_count = events
