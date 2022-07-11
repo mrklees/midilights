@@ -15,11 +15,12 @@ def simulated_drum_loop(device, repeats=10, wait_time=0.5):
             serial.send_data(snare)
             sleep(wait_time)
             serial.send_data(chat)
-            sleep(1)
+            sleep(0.1)
 
 if __name__ == "__main__":
     available_ports = get_available_ports()
     print(f"Devices: {available_ports}")
     first_port = list(available_ports.keys())[1]
     print(f"Using device: {first_port}")
-    simulated_drum_loop(first_port)
+
+    simulated_drum_loop(first_port, repeats=40, wait_time=0.1)

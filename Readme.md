@@ -17,3 +17,4 @@ We send midi events to certain channels which are interpreted by the lights in v
 | 7            | 1-127       | Set Color (from value) |
 | 8            | 1-127       | Shift Color |
 | 9            | 1-127       | Stack colors |
+| 10           | 1-127       | Global "speed" |
